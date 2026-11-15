@@ -60,7 +60,8 @@ static size_t tail_loop_period(const char* text, size_t len, size_t* repeats_out
 
 static ethervox_result_t decode_locked(
     ethervox_model_handle_t* handle, const void* image, size_t image_size, const char* prompt,
-    uint32_t max_tokens, const ethervox_cancel_token_t* cancel, char** out_text) {
+    uint32_t max_tokens, const ethervox_cancel_token_t* cancel, bool recovery, bool* looped,
+    char** out_text) {
   struct llama_model* model = ethervox_model_handle_get_model(handle);
   struct llama_context* ctx = ethervox_model_handle_get_context(handle);
   mtmd_context* mctx = ethervox_model_handle_get_mtmd(handle);
@@ -111,6 +112,14 @@ static ethervox_result_t decode_locked(
 
   const struct llama_vocab* vocab = llama_model_get_vocab(model);
   struct llama_sampler* sampler = llama_sampler_chain_init(llama_sampler_chain_default_params());
+  if (recovery) {
+    // Second attempt after a loop: DRY penalises only long verbatim repeats (20+ tokens), so
+    // DocTags' short, legitimately repeated tags are untouched but a looping passage is broken.
+    const char* breakers[] = {"\n"};
+    llama_sampler_chain_add(
+        sampler, llama_sampler_init_dry(vocab, llama_model_n_ctx_train(model), 0.8f, 1.75f, 20, -1,
+                                        breakers, 1));
+  }
   llama_sampler_chain_add(sampler, llama_sampler_init_greedy());
 
   size_t cap = 8192;
@@ -162,6 +171,7 @@ static ethervox_result_t decode_locked(
         // so report failure and let the caller fall back to another reader.
         ETHERVOX_LOG_WARN("[Vision] output was repeating itself after %u tokens; giving up", i + 1);
         (void)repeats;
+        if (looped) *looped = true;
         result = ETHERVOX_ERROR_FAILED;
         break;
       }
@@ -199,7 +209,13 @@ ethervox_result_t ethervox_vision_generate(
   }
   *out_text = NULL;
   ethervox_model_handle_lock(handle);
-  ethervox_result_t result = decode_locked(handle, image, image_size, prompt, max_tokens, cancel, out_text);
+  bool looped = false;
+  ethervox_result_t result =
+      decode_locked(handle, image, image_size, prompt, max_tokens, cancel, false, &looped, out_text);
+  if (result == ETHERVOX_ERROR_FAILED && looped) {
+    ETHERVOX_LOG_INFO("[Vision] retrying the page with repetition suppression");
+    result = decode_locked(handle, image, image_size, prompt, max_tokens, cancel, true, NULL, out_text);
+  }
   ethervox_model_handle_unlock(handle);
   return result;
 }

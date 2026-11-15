@@ -6,7 +6,7 @@ All notable changes to this project are documented here, following
 
 ---
 
-## [Unreleased]
+## [1.0.0]
 
 ### Added
 - **Role-structured prompts for `ethervox_generate_structured` (`C6.1a`).**
