@@ -191,7 +191,7 @@ jobs:
     - name: Install Linux dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential libasound2-dev libssl-dev pkg-config ninja-build
+        sudo apt-get install -y build-essential libasound2-dev libreadline-dev libssl-dev pkg-config ninja-build
 
     - name: Configure with every network/mutating-file feature OFF
       run: |
@@ -277,17 +277,17 @@ jobs:
         chmod +x scripts/setup-rpi-toolchain.sh
         ./scripts/setup-rpi-toolchain.sh
 
-    - name: Configure for Raspberry Pi (Makefile)
-      run: make configure-rpi
+    - name: Configure for Raspberry Pi (CMake preset)
+      run: cmake --preset rpi-4
 
-    - name: Build for Raspberry Pi (Makefile)
-      run: make build-rpi
+    - name: Build for Raspberry Pi (CMake preset)
+      run: cmake --build --preset rpi-4
 
     - name: Package Raspberry Pi artifacts
       run: |
         mkdir -p artifacts-${{ matrix.target }}
-        cp build-${{ matrix.target }}/src/ethervoxai artifacts-${{ matrix.target }}/ || true
-        cp -r build-${{ matrix.target }}/dashboard/dist artifacts-${{ matrix.target }}/dashboard || true
+        cp build-rpi-4/ethervoxai artifacts-${{ matrix.target }}/ || true
+        cp -r build-rpi-4/dashboard/dist artifacts-${{ matrix.target }}/dashboard || true
 
     - name: Upload Raspberry Pi artifacts
       uses: actions/upload-artifact@v4
@@ -321,6 +321,7 @@ jobs:
           build-essential \
           libasound2-dev \
           libcurl4-openssl-dev \
+          libreadline-dev \
           libssl-dev \
           pkg-config \
           ninja-build \
