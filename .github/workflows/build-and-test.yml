@@ -136,7 +136,6 @@ jobs:
           mingw-w64-x86_64-ninja
           mingw-w64-x86_64-pkgconf
           mingw-w64-x86_64-curl
-          mingw-w64-x86_64-speexdsp
 
     - name: Install macOS dependencies
       if: matrix.platform == 'macos'
@@ -321,7 +320,6 @@ jobs:
           libasound2-dev \
           libcurl4-openssl-dev \
           libreadline-dev \
-          libspeexdsp-dev \
           libssl-dev \
           pkg-config \
           ninja-build \
