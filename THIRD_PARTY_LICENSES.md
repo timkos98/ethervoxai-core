@@ -31,31 +31,6 @@ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 ```
 
-### Speex DSP
-- **Version**: 1.2.1+
-- **License**: BSD 3-Clause License
-- **Purpose**: Audio resampling (22050Hz → 16000Hz for TTS)
-- **URL**: https://github.com/xiph/speexdsp
-- **Copyright**: Copyright 2002-2008 Xiph.org Foundation, Jean-Marc Valin
-
-```
-BSD 3-Clause License
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-
-1. Redistributions of source code must retain the above copyright notice,
-   this list of conditions and the following disclaimer.
-2. Redistributions in binary form must reproduce the above copyright notice,
-   this list of conditions and the following disclaimer in the documentation
-   and/or other materials provided with the distribution.
-3. Neither the name of the copyright holder nor the names of its contributors
-   may be used to endorse or promote products derived from this software
-   without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"...
-```
-
 ### llama.cpp
 - **License**: MIT License
 - **Purpose**: LLM inference engine
@@ -304,7 +279,6 @@ For detailed legal analysis, see `docs/ESPEAK_DICT_LICENSING.md`
 |-----------|---------|----------------|----------|----------------------|
 | EthervoxAI (Core) | CC BY-NC-SA 4.0 | No* | Yes | N/A |
 | ONNX Runtime | MIT | Yes | No | ✅ Yes |
-| Speex DSP | BSD-3-Clause | Yes | No | ✅ Yes |
 | llama.cpp | MIT | Yes | No | ✅ Yes |
 | whisper.cpp | MIT | Yes | No | ✅ Yes |
 | cJSON | MIT | Yes | No | ✅ Yes |

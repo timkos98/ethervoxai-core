@@ -2,6 +2,12 @@
 "Bord" = "Bord"
 "Tableau" = "Tableau"
 "EtherVox" = "EtherVox"
+# German, Pinyin and ARPAbet examples in the phonemizer docs, and the DoclingMatix model name
+"ist" = "ist"
+"Sie" = "Sie"
+"ba" = "ba"
+"IY" = "IY"
+"Matix" = "Matix"
 "Enregistrement" = "Enregistrement"
 "Etat" = "Etat"
 "État" = "État"

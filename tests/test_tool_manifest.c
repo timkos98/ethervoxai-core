@@ -42,8 +42,7 @@ void test_minimal_system_prompt(void) {
     
     assert(len > 0);
     assert(len < 1000);  // Should be compact
-    assert(strstr(prompt, "/help") != NULL);  // Should have basic commands
-    assert(strstr(prompt, "/quit") != NULL);
+    assert(strstr(prompt, "Ethervox") != NULL);  // LLM-only prompt names the assistant
     
     printf("✓ PASS (%d bytes)\n", len);
 }

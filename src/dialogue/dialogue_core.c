@@ -49,7 +49,7 @@
 
 static const float kEthervoxIntentMatchConfidence ETHERVOX_UNUSED = 0.8f;
 static const float kEthervoxIntentUnknownConfidence ETHERVOX_UNUSED = 0.1f;
-static const float kEthervoxResponseConfidence = 0.9f;
+static const float kEthervoxResponseConfidence ETHERVOX_UNUSED = 0.9f;
 static const uint32_t kEthervoxResponseProcessingTimeMs = 50U;
 static const uint32_t kEthervoxTokenEstimateDivisor = 4U;
 static const uint32_t kEthervoxDefaultMaxContexts = 16U;
@@ -1181,12 +1181,12 @@ static const char* answer_simple_question(const char* normalized_text, const cha
         start = rechne + 6;
 
       // Parse first number
-      while (*start && !isdigit(*start) && *start != '-')
+      while (*start && !isdigit((unsigned char)*start) && *start != '-')
         start++;
       if (sscanf(start, "%lf", &num1) == 1) {
         // Parse second number (after operator)
         const char* after_op = op_pos + strlen(operators[i]);
-        while (*after_op && !isdigit(*after_op) && *after_op != '-')
+        while (*after_op && !isdigit((unsigned char)*after_op) && *after_op != '-')
           after_op++;
         if (sscanf(after_op, "%lf", &num2) == 1) {
           double result = 0;
@@ -1733,7 +1733,8 @@ ethervox_result_t ethervox_dialogue_process_llm(ethervox_dialogue_engine_t* engi
         if (status == ETHERVOX_GOVERNOR_SUCCESS && gov_response) {
           // Governor succeeded
           response_text = gov_response;  // Will be copied below
-          snprintf(response->text, sizeof(response->text), "%s", gov_response);
+          free(response->text);
+          response->text = strdup(gov_response);
           response->confidence = metrics.confidence;
           response->processing_time_ms = 100;  // Governor is fast
           response->conversation_ended = true;

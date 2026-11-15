@@ -48,27 +48,34 @@ jobs:
           ninja-build \
           libasound2-dev \
           libcurl4-openssl-dev \
+          libreadline-dev \
           libssl-dev
 
     - name: Build C code
       if: matrix.language == 'c'
       run: |
         # Use Makefile wrapper to configure and build
-        make configure TARGET_PLATFORM=linux
-        make build
+        cmake -B build -S . -DTARGET_PLATFORM=LINUX
+        cmake --build build
+
+    - name: Setup pnpm
+      if: matrix.language == 'javascript'
+      uses: pnpm/action-setup@v4
+      with:
+        version: '9'
 
     - name: Setup Node.js (JavaScript)
       if: matrix.language == 'javascript'
       uses: actions/setup-node@v4
       with:
         node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: dashboard/package-lock.json
+        cache: 'pnpm'
+        cache-dependency-path: dashboard/pnpm-lock.yaml
 
     - name: Install dashboard dependencies
       if: matrix.language == 'javascript'
       working-directory: dashboard
-      run: npm install
+      run: pnpm install --frozen-lockfile
 
     - name: Build dashboard
       if: matrix.language == 'javascript'
@@ -115,21 +122,26 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: '9'
+
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: dashboard/package-lock.json
+        cache: 'pnpm'
+        cache-dependency-path: dashboard/pnpm-lock.yaml
 
     - name: Install dashboard dependencies
       working-directory: dashboard
-      run: npm install
+      run: pnpm install --frozen-lockfile
 
     - name: Run npm audit
       working-directory: dashboard
       run: |
-        npm audit --audit-level=moderate --json > npm-audit-results.json || true
+        pnpm audit --audit-level moderate --json > npm-audit-results.json || true
         
     - name: Upload npm audit results
       if: always()
@@ -230,6 +242,7 @@ jobs:
           ninja-build \
           libasound2-dev \
           libcurl4-openssl-dev \
+          libreadline-dev \
           libssl-dev \
           git \
           && rm -rf /var/lib/apt/lists/*
@@ -238,7 +251,7 @@ jobs:
         COPY . /app
         WORKDIR /app
         # Build the application via Makefile/CMake
-        RUN make configure && cmake --build build
+        RUN cmake -B build -S . -DTARGET_PLATFORM=LINUX && cmake --build build
               
               # Create non-root user
               RUN useradd -m ethervox

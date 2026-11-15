@@ -1,7 +1,34 @@
+# The firmware reports the same build identity as the desktop builds (include/ethervox/config.h requires it).
+find_package(Git QUIET)
+set(ETHERVOX_GIT_BRANCH_VALUE "unknown")
+set(ETHERVOX_GIT_COMMIT_VALUE "unknown")
+set(ETHERVOX_GIT_TAG_VALUE "")
+if(GIT_FOUND)
+    execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --abbrev-ref HEAD
+        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR} OUTPUT_VARIABLE _b OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
+    execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
+        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR} OUTPUT_VARIABLE _c OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
+    execute_process(COMMAND ${GIT_EXECUTABLE} describe --tags --abbrev=0 --match "core-v*"
+        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR} OUTPUT_VARIABLE _t OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
+    if(_b)
+        set(ETHERVOX_GIT_BRANCH_VALUE "${_b}")
+    endif()
+    if(_c)
+        set(ETHERVOX_GIT_COMMIT_VALUE "${_c}")
+    endif()
+    set(ETHERVOX_GIT_TAG_VALUE "${_t}")
+endif()
+if(ETHERVOX_GIT_TAG_VALUE)
+    string(REGEX REPLACE "^(core-)?v" "" ETHERVOX_BACKEND_VERSION_VALUE "${ETHERVOX_GIT_TAG_VALUE}")
+else()
+    set(ETHERVOX_BACKEND_VERSION_VALUE "${ETHERVOX_GIT_BRANCH_VALUE}-${ETHERVOX_GIT_COMMIT_VALUE}")
+endif()
+
 idf_component_register(
     SRCS 
         "main.c"
         # "../src/audio/audio_core.c"
+        "../src/common/error.c"
         "../src/audio/platform_esp32.c"
         "../src/platform/esp32_hal.c"
         "../src/platform/platform_core.c"
@@ -34,6 +61,9 @@ target_compile_definitions(${COMPONENT_LIB} PRIVATE
     ETHERVOX_VERSION_MAJOR=0
     ETHERVOX_VERSION_MINOR=1
     ETHERVOX_VERSION_PATCH=0
+    ETHERVOX_GIT_BRANCH="${ETHERVOX_GIT_BRANCH_VALUE}"
+    ETHERVOX_GIT_COMMIT="${ETHERVOX_GIT_COMMIT_VALUE}"
+    ETHERVOX_BACKEND_VERSION="${ETHERVOX_BACKEND_VERSION_VALUE}"
 )
 
 # Remove any desktop/linux definitions if present

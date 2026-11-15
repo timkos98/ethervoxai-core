@@ -55,6 +55,8 @@ const char* ethervox_error_string(ethervox_result_t result) {
         case ETHERVOX_ERROR_PLATFORM_INIT: return "Platform initialization failed";
         case ETHERVOX_ERROR_HAL_NOT_FOUND: return "HAL not found";
         case ETHERVOX_ERROR_GPIO_FAILURE: return "GPIO operation failed";
+        case ETHERVOX_ERROR_I2C_FAILURE: return "I2C operation failed";
+        case ETHERVOX_ERROR_SPI_FAILURE: return "SPI operation failed";
         case ETHERVOX_ERROR_HARDWARE_NOT_AVAILABLE: return "Hardware not available";
         
         // Audio errors

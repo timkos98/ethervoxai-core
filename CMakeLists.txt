@@ -1065,25 +1065,9 @@ else()
     message(WARNING "cJSON target not found - settings persistence will fail")
 endif()
 
-# Link Speex DSP for AEC (echo cancellation) and resampling - Skip on Android
-# Android uses built-in audio processing or will handle this differently
+# No echo-cancellation backend is linked: src/audio/aec_speex.c is a passthrough.
 find_package(PkgConfig)
 if(PkgConfig_FOUND)
-    if(NOT ANDROID)
-        pkg_check_modules(SPEEX speexdsp)
-        if(SPEEX_FOUND)
-            target_link_libraries(ethervoxai PUBLIC ${SPEEX_LINK_LIBRARIES})
-            target_include_directories(ethervoxai PRIVATE ${SPEEX_INCLUDE_DIRS})
-            target_link_directories(ethervoxai PRIVATE ${SPEEX_LIBRARY_DIRS})
-            message(STATUS "Linked Speex DSP library: ${SPEEX_VERSION}")
-            message(STATUS "Speex lib dirs: ${SPEEX_LIBRARY_DIRS}")
-            message(STATUS "Speex link libs: ${SPEEX_LINK_LIBRARIES}")
-        else()
-            message(WARNING "Speex DSP not found - AEC will use passthrough mode. Install with: brew install speexdsp")
-        endif()
-    else()
-        message(STATUS "⊘ Skipped Speex DSP (Android uses platform audio processing)")
-    endif()
     
     # ONNX Runtime/Piper TTS removed (TASK-C1.0) - TTS now via ethervox_tts_host_t
     

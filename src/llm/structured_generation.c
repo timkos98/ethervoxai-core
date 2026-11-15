@@ -22,6 +22,10 @@
 #include <sys/stat.h>
 #include <time.h>
 #include <pthread.h>
+#ifdef _WIN32
+#include <direct.h>  // _mkdir
+#define mkdir(path, mode) _mkdir(path)
+#endif
 
 // Maximum response length (256 KB)
 #define MAX_RESPONSE_LENGTH (256 * 1024)

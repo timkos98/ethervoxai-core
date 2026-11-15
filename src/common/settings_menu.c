@@ -29,6 +29,14 @@
 #elif defined(__APPLE__)
     #define HAVE_NCURSES 1
     #include <ncurses.h>
+#elif defined(__linux__) && defined(__has_include)
+    // A cross-compile sysroot (Raspberry Pi) may not carry ncurses.
+    #if __has_include(<ncurses.h>)
+        #define HAVE_NCURSES 1
+        #include <ncurses.h>
+    #else
+        #define HAVE_NCURSES 0
+    #endif
 #elif defined(__linux__)
     #define HAVE_NCURSES 1
     #include <ncurses.h>
