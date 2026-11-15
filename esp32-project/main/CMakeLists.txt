@@ -28,6 +28,7 @@ idf_component_register(
     SRCS 
         "main.c"
         # "../src/audio/audio_core.c"
+        "../src/common/error.c"
         "../src/audio/platform_esp32.c"
         "../src/platform/esp32_hal.c"
         "../src/platform/platform_core.c"
