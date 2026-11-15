@@ -115,8 +115,9 @@
         "CMAKE_BUILD_TYPE": "Release",
         "TARGET_PLATFORM": "RPI", 
         "RPI_TARGET": "rpi4",
-        "BUILD_TESTS": "ON",
-        "BUILD_EXAMPLES": "ON"
+        "BUILD_TESTS": "OFF",
+        "BUILD_EXAMPLES": "OFF",
+        "BUILD_EXECUTABLES": "OFF"
       }
     }
   ],

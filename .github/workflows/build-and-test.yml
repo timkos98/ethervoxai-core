@@ -286,8 +286,7 @@ jobs:
     - name: Package Raspberry Pi artifacts
       run: |
         mkdir -p artifacts-${{ matrix.target }}
-        cp build-rpi-4/ethervoxai artifacts-${{ matrix.target }}/ || true
-        cp -r build-rpi-4/dashboard/dist artifacts-${{ matrix.target }}/dashboard || true
+        cp build-rpi-4/libethervoxai* artifacts-${{ matrix.target }}/
 
     - name: Upload Raspberry Pi artifacts
       uses: actions/upload-artifact@v4
@@ -322,6 +321,7 @@ jobs:
           libasound2-dev \
           libcurl4-openssl-dev \
           libreadline-dev \
+          libspeexdsp-dev \
           libssl-dev \
           pkg-config \
           ninja-build \

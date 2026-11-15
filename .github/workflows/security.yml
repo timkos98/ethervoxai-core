@@ -48,7 +48,7 @@ jobs:
           ninja-build \
           libasound2-dev \
           libcurl4-openssl-dev \
-          libreadline-dev \
+          libreadline-dev libspeexdsp-dev \
           libssl-dev
 
     - name: Build C code
@@ -242,7 +242,7 @@ jobs:
           ninja-build \
           libasound2-dev \
           libcurl4-openssl-dev \
-          libreadline-dev \
+          libreadline-dev libspeexdsp-dev \
           libssl-dev \
           git \
           && rm -rf /var/lib/apt/lists/*

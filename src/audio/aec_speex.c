@@ -323,4 +323,8 @@ void ethervox_aec_destroy(ethervox_aec_t* aec) {
     // No-op
 }
 
+bool ethervox_aec_is_active(const ethervox_aec_t* aec) {
+    return false;
+}
+
 #endif  // HAVE_SPEEXDSP
