@@ -82,6 +82,25 @@ static struct {
     .initialized = false
 };
 
+#ifdef _WIN32
+// A zeroed CRITICAL_SECTION is not valid, so the global mutex is initialised on first use.
+static INIT_ONCE g_backend_once = INIT_ONCE_STATIC_INIT;
+
+static BOOL CALLBACK backend_mutex_init_once(PINIT_ONCE once, PVOID param, PVOID* context) {
+    (void)once; (void)param; (void)context;
+    ethervox_mutex_init(&g_backend.mutex);
+    return TRUE;
+}
+
+#define BACKEND_LOCK() \
+    do { \
+        InitOnceExecuteOnce(&g_backend_once, backend_mutex_init_once, NULL, NULL); \
+        MUTEX_LOCK(g_backend.mutex); \
+    } while (0)
+#else
+#define BACKEND_LOCK() MUTEX_LOCK(g_backend.mutex)
+#endif
+
 /**
  * Model handle structure
  */
@@ -140,7 +159,7 @@ struct ethervox_model_pool {
  * Initialize global llama backend (refcounted)
  */
 static ethervox_result_t backend_init(void) {
-    MUTEX_LOCK(g_backend.mutex);
+    BACKEND_LOCK();
     
     if (!g_backend.initialized) {
 #if LLAMA_AVAILABLE
@@ -173,7 +192,7 @@ static ethervox_result_t backend_init(void) {
  * Cleanup global llama backend (refcounted)
  */
 static void backend_cleanup(void) {
-    MUTEX_LOCK(g_backend.mutex);
+    BACKEND_LOCK();
     
     if (g_backend.refcount > 0) {
         g_backend.refcount--;
@@ -425,17 +444,18 @@ ethervox_result_t ethervox_model_pool_load(
     ctx_params.kv_unified = config->kv_unified;
     ctx_params.embeddings = config->embeddings;
     if (config->embeddings) {
-        // llama_get_embeddings_seq() returns NULL unless pooling_type is set at context-creation
-        // time (it cannot be chosen per-call) - see llama.h's own "Returns NULL if pooling_type is
-        // LLAMA_POOLING_TYPE_NONE" contract. ethervox_embed_texts()'s `pooling` parameter is
-        // therefore only meaningful for MEAN today; a caller requesting CLS/LAST still gets a
-        // context pooled as MEAN, since ethervox_model_config_t has no per-strategy field yet.
-        // Tracked as a known limitation (E4.7), not fixed here - MEAN is this API's only verified
-        // working strategy.
-        ctx_params.pooling_type = LLAMA_POOLING_TYPE_MEAN;
+        // Pooling is fixed at context creation (llama_get_embeddings_seq() returns NULL under
+        // NONE). Use the model's own default (CLS for the Granite embedders); a model that has
+        // none, such as a decoder used as an embedder, is pooled as MEAN, retried below.
+        ctx_params.pooling_type = LLAMA_POOLING_TYPE_UNSPECIFIED;
     }
-    
+
     struct llama_context* ctx = llama_init_from_model(model, ctx_params);
+    if (ctx && config->embeddings && llama_pooling_type(ctx) == LLAMA_POOLING_TYPE_NONE) {
+        llama_free(ctx);
+        ctx_params.pooling_type = LLAMA_POOLING_TYPE_MEAN;
+        ctx = llama_init_from_model(model, ctx_params);
+    }
     if (!ctx) {
         llama_free_model(model);
         ETHERVOX_LOG_ERROR("[ModelPool] Failed to create context");
