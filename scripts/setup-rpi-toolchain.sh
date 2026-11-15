@@ -92,22 +92,10 @@ echo "Cleaning up temporary files..."
 cd "${PROJECT_ROOT}"
 rm -rf "${TEMP_DIR}"
 
-# Clone llama.cpp if not present
-echo "Setting up llama.cpp..."
-mkdir -p "${PROJECT_ROOT}/external"
-
-if [ ! -d "${PROJECT_ROOT}/external/llama.cpp" ]; then
-    echo "Cloning llama.cpp..."
-    cd "${PROJECT_ROOT}/external"
-    git clone https://github.com/ggerganov/llama.cpp.git
-    echo "✓ llama.cpp cloned successfully"
-else
-    echo "✓ llama.cpp already present"
-    echo "Updating llama.cpp..."
-    cd "${PROJECT_ROOT}/external/llama.cpp"
-    git pull origin master || echo "Note: Could not update llama.cpp (possibly local changes)"
-fi
-
+# llama.cpp is a submodule pinned to the commit the core is written against; never pull a newer one
+# (its API changes break the build).
+echo "Setting up llama.cpp (pinned submodule)..."
+git -C "${PROJECT_ROOT}" submodule update --init --recursive external/llama.cpp
 cd "${PROJECT_ROOT}"
 
 echo "✓ Raspberry Pi toolchain setup complete!"
