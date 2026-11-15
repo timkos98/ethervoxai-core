@@ -1065,8 +1065,7 @@ else()
     message(WARNING "cJSON target not found - settings persistence will fail")
 endif()
 
-# SpeexDSP is deliberately not linked: it cannot be used in our products. Echo cancellation is the
-# passthrough stub in src/audio/aec_speex.c (HAVE_SPEEXDSP is never defined).
+# No echo-cancellation backend is linked: src/audio/aec_speex.c is a passthrough.
 find_package(PkgConfig)
 if(PkgConfig_FOUND)
     
